@@ -10,12 +10,12 @@ namespace Alzaitu.Lacewing.Wrapper.Native
         /// <summary>
         /// Version of the liblacewing library.
         /// </summary>
-        public static string Version => lw_version();
+        public static string Version => Marshal.PtrToStringUTF8(lw_version());
 
         #region Native
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern string lw_version();
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern IntPtr lw_version();
 
         #endregion
     }
