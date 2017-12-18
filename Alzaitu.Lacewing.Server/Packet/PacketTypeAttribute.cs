@@ -12,10 +12,24 @@ namespace Alzaitu.Lacewing.Server.Packet
         /// <summary>
         /// The subtype of the packet.
         /// </summary>
-        public byte? SubType { get; } = null;
+        public byte? SubType { get; }
 
-        public PacketTypeAttribute(byte type) => Type = type;
+        /// <summary>
+        /// If true, this packet can be written.
+        /// </summary>
+        public bool CanWrite { get; }
+        /// <summary>
+        /// If true, this packet can be read.
+        /// </summary>
+        public bool CanRead { get; }
 
-        public PacketTypeAttribute(byte type, byte subType) : this(type) => SubType = subType;
+        public PacketTypeAttribute(byte type, bool canWrite, bool canRead)
+        {
+            Type = type;
+            CanWrite = canWrite;
+            CanRead = canRead;
+        }
+
+        public PacketTypeAttribute(byte type, byte subType, bool canWrite, bool canRead) : this(type, canWrite, canRead) => SubType = subType;
     }
 }

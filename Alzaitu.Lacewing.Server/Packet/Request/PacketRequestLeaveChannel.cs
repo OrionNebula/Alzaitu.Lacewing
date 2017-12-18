@@ -2,7 +2,7 @@
 
 namespace Alzaitu.Lacewing.Server.Packet.Request
 {
-    [PacketType(0, 3)]
+    [PacketType(0, 3, false, true)]
     internal class PacketRequestLeaveChannel : PacketRequest
     {
         public short ChannelId { get; private set; }

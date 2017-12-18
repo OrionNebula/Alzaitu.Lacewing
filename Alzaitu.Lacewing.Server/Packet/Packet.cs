@@ -9,30 +9,34 @@ namespace Alzaitu.Lacewing.Server.Packet
 {
     internal abstract class Packet
     {
-        private static Dictionary<byte, Dictionary<byte?, Type>> _typeMap;
-
-        private static Dictionary<byte, Dictionary<byte?, Type>> TypeMap =>
-            _typeMap ?? (_typeMap = typeof(Packet).Assembly.GetTypes()
+        private static Dictionary<byte, Dictionary<int, Type>> _typeReadMap;
+        private static Dictionary<byte, Dictionary<int, Type>> TypeReadMap =>
+            _typeReadMap ?? (_typeReadMap = typeof(Packet).Assembly.GetTypes()
                 .Where(x => typeof(Packet).IsAssignableFrom(x) &&
                             !x.IsAbstract && !x.IsInterface &&
-                            x.GetCustomAttribute<PacketTypeAttribute>() !=
-                            null).GroupBy(x => x.GetCustomAttribute<PacketTypeAttribute>().Type)
+                            x.GetCustomAttribute<PacketTypeAttribute>()?.CanRead == true)
+                .GroupBy(x => x.GetCustomAttribute<PacketTypeAttribute>().Type)
                 .ToDictionary(x => x.Key,
-                    x => x.ToDictionary(y => y.GetCustomAttribute<PacketTypeAttribute>().SubType, y => y)));
+                    x => x.ToDictionary(y => y.GetCustomAttribute<PacketTypeAttribute>().SubType ?? -1, y => y)));
 
         public byte Type => GetType().GetCustomAttribute<PacketTypeAttribute>().Type;
+        public byte? SubType => GetType().GetCustomAttribute<PacketTypeAttribute>().SubType;
 
         /// <summary>
         /// Unused by the protocol. Used to distinguish packet subtypes.
         /// </summary>
         public byte Variant { get; set; }
 
-        public abstract bool CanWrite { get; }
-        public abstract bool CanRead { get; }
+        public bool CanWrite => GetType().GetCustomAttribute<PacketTypeAttribute>().CanWrite;
+        public bool CanRead => GetType().GetCustomAttribute<PacketTypeAttribute>().CanRead;
 
         public void Write(Stream stream)
         {
             var siz = GetSize();
+
+            if (SubType != null)
+                siz += sizeof(byte);
+
             if(siz > 4294967295)
                 throw new InvalidOperationException("Cannot send a message that's more than 4294967295 bytes long.");
 
@@ -53,7 +57,10 @@ namespace Alzaitu.Lacewing.Server.Packet
                 wrt.Write((uint) siz);
             }
 
-            WriteImpl(new BinaryWriter(new WindowingStream(stream, siz)));
+            if(SubType != null)
+                wrt.Write(SubType.Value);
+
+            WriteImpl(new BinaryWriter(new WindowingStream(stream, siz - sizeof(byte))));
         }
 
         protected virtual void WriteImpl(BinaryWriter wrt) => throw new InvalidOperationException("This packet does not support writing.");
@@ -65,13 +72,17 @@ namespace Alzaitu.Lacewing.Server.Packet
         /// <returns>A number between 0 and 4294967295 describing the length of the packet in bytes.</returns>
         public abstract long GetSize();
 
-        public static Packet ReadPacket(Stream stream)
+        public static Packet ReadPacket(Stream stream, bool initialByte)
         {
             var rdr = new BinaryReader(stream);
 
+            if(initialByte && rdr.ReadByte() != 0)
+                throw new InvalidDataException("The server can only handle non-HTTP clients.");
+
             var type = rdr.ReadByte();
 
-            var packetTypeBlock = TypeMap[(byte)((type >> 4) & 0xF)];
+            if(!TypeReadMap.TryGetValue((byte) ((type >> 4) & 0xF), out var packetTypeBlock))
+                throw new InvalidDataException($"The packet read from the stream ({(type >> 4) & 0xF}.{type & 0xF}) does not have an associated type.");
 
             var size = (long)rdr.ReadByte();
             if (size == 254)
@@ -79,10 +90,16 @@ namespace Alzaitu.Lacewing.Server.Packet
             else if (size == 255)
                 size = rdr.ReadUInt32();
 
-            var packetType = packetTypeBlock.ContainsKey(null) ? packetTypeBlock[null] : packetTypeBlock[rdr.ReadByte()];
-
-            if (packetType == null)
-                throw new InvalidDataException($"The packet read from the stream ({(type >> 4) & 0xF}.{type & 0xF}) does not have an associated type.");
+            Type packetType;
+            if (packetTypeBlock.ContainsKey(-1))
+                packetType = packetTypeBlock[-1];
+            else
+            {
+                var subType = rdr.ReadByte();
+                if(!packetTypeBlock.TryGetValue(subType, out packetType))
+                    throw new InvalidDataException($"The packet read from the stream ({(type >> 4) & 0xF}.{type & 0xF}.{subType}) does not have an associated type.");
+                size -= sizeof(byte);
+            }
 
             var instance = (Packet) Activator.CreateInstance(packetType);
             instance.Variant = (byte)(type & 0xF);

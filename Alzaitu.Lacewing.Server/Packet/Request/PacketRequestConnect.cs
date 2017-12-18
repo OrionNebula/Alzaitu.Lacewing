@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Alzaitu.Lacewing.Server.Packet.Request
 {
-    [PacketType(0, 0)]
+    [PacketType(0, 0, false, true)]
     internal class PacketRequestConnect : PacketRequest
     {
         public const string CURRENT_VERSION = "revision 3";

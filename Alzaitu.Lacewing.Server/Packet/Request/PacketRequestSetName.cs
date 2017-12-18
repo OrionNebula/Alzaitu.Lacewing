@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Alzaitu.Lacewing.Server.Packet.Request
 {
-    [PacketType(0, 1)]
+    [PacketType(0, 1, false, true)]
     internal class PacketRequestSetName : PacketRequest
     {
         public string Name { get; private set; }

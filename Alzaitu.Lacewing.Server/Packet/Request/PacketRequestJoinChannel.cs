@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Alzaitu.Lacewing.Server.Packet.Request
 {
-    [PacketType(0, 2)]
+    [PacketType(0, 2, false, true)]
     internal class PacketRequestJoinChannel : PacketRequest
     {
         public ChannelJoinFlags Flags { get; private set; }

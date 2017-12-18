@@ -2,12 +2,9 @@
 
 namespace Alzaitu.Lacewing.Server.Packet.Message
 {
-    [PacketType(1)]
+    [PacketType(1, true, true)]
     internal class PacketBinaryServerMessage : Packet
     {
-        public override bool CanWrite => true;
-        public override bool CanRead => true;
-
         public byte SubChannel { get; set; }
         public byte[] Message { get; set; }
 
