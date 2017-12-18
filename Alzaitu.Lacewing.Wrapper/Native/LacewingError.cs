@@ -27,31 +27,31 @@ namespace Alzaitu.Lacewing.Wrapper.Native
 
         #region Native
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern LacewingError* lw_error_new();
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern void lw_error_delete(ref LacewingError error);
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern void lw_error_add(ref LacewingError error, long unknown);
 
         [DllImport("liblacewing.dll")]
         private static extern void lw_error_addf(ref LacewingError error, string format);
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern uint lw_error_size(ref LacewingError error);
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern IntPtr lw_error_tostring(ref LacewingError error);
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern LacewingError* lw_error_clone(ref LacewingError error);
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern void* lw_error_tag(ref LacewingError error);
 
-        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("liblacewing.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern void lw_error_set_tag(ref LacewingError error, void* tag);
 
         #endregion
