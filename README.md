@@ -1,2 +1,2 @@
 # Alzaitu.Lacewing
-Wrapper and pure .NET port of the Lacewing (https://github.com/udp/lacewing) library.
+Pure .NET Core port of the Lacewing (https://github.com/udp/lacewing) library.
