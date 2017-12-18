@@ -4,9 +4,6 @@ namespace Alzaitu.Lacewing.Server.Packet.Request
 {
     internal abstract class PacketRequest : Packet
     {
-        public override bool CanWrite => false;
-        public override bool CanRead => true;
-
         protected abstract override void ReadImpl(BinaryReader rdr, long size);
 
         protected sealed override void WriteImpl(BinaryWriter wrt) => base.WriteImpl(wrt);

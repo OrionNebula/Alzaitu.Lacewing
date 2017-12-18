@@ -7,6 +7,6 @@ namespace Alzaitu.Lacewing.Server.Packet.Request
     {
         protected override void ReadImpl(BinaryReader rdr, long size) { }
 
-        public override long GetSize() => 0;
+        //public override long GetSize() => 0;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using Alzaitu.Lacewing.Server.Packet.Serialization;
 
 namespace Alzaitu.Lacewing.Server.Packet.Response
 {
@@ -8,8 +9,12 @@ namespace Alzaitu.Lacewing.Server.Packet.Response
     {
         public const string DENY_REASON = "Name was not accepted.";
 
+        [ProtocolPosition(0, emitLengthPrefix: true)]
         public string Name { get; set; }
 
+        [ProtocolPosition(1, emitOnSuccess: false)]
+        public string DenyReason { get; set; }
+        
         protected override void WriteResponse(BinaryWriter wrt)
         {
             wrt.Write((byte) Encoding.UTF8.GetByteCount(Name));

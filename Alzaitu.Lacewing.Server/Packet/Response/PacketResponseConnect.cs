@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Alzaitu.Lacewing.Server.Packet.Serialization;
 
 namespace Alzaitu.Lacewing.Server.Packet.Response
 {
@@ -9,9 +10,14 @@ namespace Alzaitu.Lacewing.Server.Packet.Response
     {
         public const string DENY_REASON = "Connection was not allowed.";
 
+        [ProtocolPosition(0, emitOnFailure: false)]
         public short PeerId { get; set; }
         
+        [ProtocolPosition(1, emitOnFailure: false)]
         public string WelcomeMessage { get; set; }
+
+        [ProtocolPosition(0, emitOnSuccess: false)]
+        public string DenyReason { get; set; }
 
         protected override void WriteResponse(BinaryWriter wrt)
         {

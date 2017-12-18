@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Alzaitu.Lacewing.Server.Util;
+using Alzaitu.Lacewing.Server.Packet.Serialization;
 
 namespace Alzaitu.Lacewing.Server.Packet
 {
@@ -32,7 +32,9 @@ namespace Alzaitu.Lacewing.Server.Packet
 
         public void Write(Stream stream)
         {
-            var siz = GetSize();
+            var s = new LacewingSerializer(GetType());
+
+            var siz = s.GetSize(this);
 
             if (SubType != null)
                 siz += sizeof(byte);
@@ -60,7 +62,8 @@ namespace Alzaitu.Lacewing.Server.Packet
             if(SubType != null)
                 wrt.Write(SubType.Value);
 
-            WriteImpl(new BinaryWriter(new WindowingStream(stream, siz - sizeof(byte))));
+            s.Write(this, stream);
+            //WriteImpl(new BinaryWriter(new WindowingStream(stream, siz - sizeof(byte))));
         }
 
         protected virtual void WriteImpl(BinaryWriter wrt) => throw new InvalidOperationException("This packet does not support writing.");
@@ -70,7 +73,7 @@ namespace Alzaitu.Lacewing.Server.Packet
         /// Retrive the size of the packet, in bytes.
         /// </summary>
         /// <returns>A number between 0 and 4294967295 describing the length of the packet in bytes.</returns>
-        public abstract long GetSize();
+        public long GetSize() => new LacewingSerializer(GetType()).GetSize(this);
 
         public static Packet ReadPacket(Stream stream, bool initialByte)
         {
@@ -103,7 +106,7 @@ namespace Alzaitu.Lacewing.Server.Packet
 
             var instance = (Packet) Activator.CreateInstance(packetType);
             instance.Variant = (byte)(type & 0xF);
-            instance.ReadImpl(new BinaryReader(new WindowingStream(stream, size)), size);
+            new LacewingSerializer(packetType).Read(instance, size, stream);
 
             return instance;
         }
